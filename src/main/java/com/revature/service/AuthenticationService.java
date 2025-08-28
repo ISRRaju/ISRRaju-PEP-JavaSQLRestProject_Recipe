@@ -1,8 +1,10 @@
 package com.revature.service;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import com.revature.model.Chef;
-
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * The AuthenticationService class provides authentication functionality
@@ -41,7 +43,17 @@ public class AuthenticationService {
      * @return a session token if the login is successful; null otherwise
      */
     public String login(Chef chef) {
-        return null; 
+        List<Chef> chefs = chefService.searchChefs(chef.getUsername());
+        Optional<Chef> existingChef = chefs.stream()
+            .filter(c -> c.getUsername().equals(chef.getUsername()) && c.getPassword().equals(chef.getPassword()))
+            .findFirst();
+
+        if (existingChef.isPresent()) {
+            String token = UUID.randomUUID().toString();
+            loggedInUsers.put(token, existingChef.get());
+            return token;
+        }
+        return null;
     }
 
     /**
@@ -51,7 +63,7 @@ public class AuthenticationService {
      */
 
     public void logout(String token) {
-        
+        loggedInUsers.remove(token);
     }
 
     /**
@@ -61,7 +73,8 @@ public class AuthenticationService {
 	 * @return the registered chef object
 	 */
     public Chef registerChef(Chef chef) {
-        return null;
+        chefService.saveChef(chef);
+        return chef;
     }
 
     /**
@@ -71,6 +84,10 @@ public class AuthenticationService {
      * @return the Chef object associated with the session token; null if not found
      */
     public Chef getChefFromSessionToken(String token) {
-        return null;
+        if (token == null || !loggedInUsers.containsKey(token)) {
+            return null;
+        }
+        System.out.println(loggedInUsers.get(token));
+        return loggedInUsers.get(token);
     }
 }

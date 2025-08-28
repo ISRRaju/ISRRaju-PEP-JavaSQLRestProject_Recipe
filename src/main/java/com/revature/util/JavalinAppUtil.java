@@ -78,8 +78,8 @@ public class JavalinAppUtil {
         app.before("/recipes/*", new AdminMiddleware("DELETE"));
         app.before("/ingredients/*", new AdminMiddleware("UPDATE", "CREATE", "DELETE"));
 
+        
         return app;
     }
-
 
 }
